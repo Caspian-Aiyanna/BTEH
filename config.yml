@@ -1,0 +1,90 @@
+project:
+  name: BTEH Species Distribution Modeling
+  seed: 123
+  single_core: true
+
+paths:
+  data:
+    raw: data/raw
+    clean: data/clean
+    occ: data/occ
+    envi: data/envi
+  plans: plans
+  results:
+    h2o: results/H2O
+    ssdm: results/SSDM
+    compare: results/compare
+  logs: logs
+
+logging:
+  dir: logs
+  dbscan: dbscan.log
+  h2o: h2o.log
+
+runtime:
+  dataset: A
+  plan: default
+
+# DBSCAN thinning parameters
+thinning:
+  input_subdir: clean
+  output_subdir: occ
+  eps: 0.004
+  min_pts: 15
+  fraction: 0.09
+  min_samples: 4
+  replicates: 3
+
+modeling:
+  block_km: 2.5
+  n_folds: 5
+  kendall_cutoff: 0.8
+  kendall_sample: 50000
+  partial_vars: 5
+  automl_models: 30
+  cv_automl_models: 25
+  prediction_batch: 200000
+
+rasters:
+  chunk_size: 200000
+
+ssdm:
+  background_points: 10000
+  evaluation_threshold: 0.5
+
+compare:
+  metrics: ["AUC", "RMSE", "logloss"]
+
+uncertainty:
+  output_dir: results/compare/uncertainty
+  top_k: null
+  species:
+    E3:
+      before: results/H2O/B/thinned_E3B
+      after: results/H2O/A/thinned_E3A
+    E4:
+      before: results/H2O/B/thinned_E4B
+      after: results/H2O/A/thinned_E4A
+    E5:
+      before: results/H2O/B/thinned_E5B
+      after: results/H2O/A/thinned_E5A
+
+# Dataset-specific overrides for directories and artifacts
+# Extend this list with actual species/datasets.
+datasets:
+  A:
+    occ_files:
+      - data/occ/A/occurrence.csv
+    env_dir: data/envi/A/current
+    plan: plans/A
+    results:
+      h2o: results/H2O/A
+      ssdm: results/SSDM/A
+  B:
+    occ_files:
+      - data/occ/B/occurrence.csv
+    env_dir: data/envi/B/current
+    plan: plans/B
+    results:
+      h2o: results/H2O/B
+      ssdm: results/SSDM/B
